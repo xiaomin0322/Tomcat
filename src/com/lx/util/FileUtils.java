@@ -29,7 +29,7 @@ public class FileUtils {
 		return st.toString();
 	}
 
-	// 特殊文件处理
+	// 特殊文件 处理
 	public static boolean isStatic(String uri) {
 		boolean isStatic = false;
 		String[] suffixs = { "html", "css", "js", "jpg", "jpeg", "png", "gif" };
