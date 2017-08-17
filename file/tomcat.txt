@@ -1,0 +1,15 @@
+
+
+1.运行tomcat.java 的main方法
+
+2.浏览器输入 http://localhost:8888/file/file.html
+
+
+3.账号：admin
+密码：123456
+后台会执行成功
+
+4.请使用qq浏览器 谷歌不知道什么原因拦截了显示不出来
+
+
+
