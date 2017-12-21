@@ -51,10 +51,13 @@ public class TomcatExecutorNIO {
 				while (i.hasNext()) {
 					SelectionKey sk = i.next();
 					i.remove();
+					//接受请求，对应客户端的sk.isConnectable()
 					if (sk.isAcceptable()) {
 						doAccept(sk);
+					 //开始读取客户端数据   ，一直读，读完为止
 					} else if (sk.isValid() && sk.isReadable()) {
 						doRead(sk);
+					//开始处理写事件	
 					} else if (sk.isValid() && sk.isWritable()) {
 						doWrite(sk);
 					}
@@ -90,8 +93,10 @@ public class TomcatExecutorNIO {
 			clientChannel = sever.accept();
 			if (clientChannel != null) {
 				clientChannel.configureBlocking(false);
+				//注册读时间，开始读取客户端发过来的数据流
 				SelectionKey clientKey = clientChannel.register(selector, SelectionKey.OP_READ);
 				EchoClient echoClient = new EchoClient();
+				//绑定对象
 				clientKey.attach(echoClient);
 			}
 		} catch (Exception e) {
@@ -107,11 +112,14 @@ public class TomcatExecutorNIO {
 		if (ouq.size() <= 0) {
 			return;
 		}
+		//获取最后一个buffer
 		ByteBuffer bb = ouq.getLast();
 		try {
 			byte[] data = bb.array();
 			String msg = new String(data).trim();
+			//解析成request对象
 			Request request = new Request(msg);
+			//response开始调用 servlet方法
 			Response response = new Response(channel);
 			// =======业务逻辑
 			String uri = request.getUri();
@@ -119,6 +127,7 @@ public class TomcatExecutorNIO {
 				return;
 			}
 			System.out.println("=========" + uri);
+			//返回诗句
 			if (FileUtils.isStatic(uri)) {
 				response.writerFileByNIO(uri.substring(1));
 			} else if (uri.indexOf(".action") != -1) {
@@ -163,8 +172,11 @@ public class TomcatExecutorNIO {
 		@Override
 		public void run() {
 			EchoClient echoClient = (EchoClient) sk.attachment();
+			//当前读取的流加入到头部
 			echoClient.enqueue(bb);
+			//开始注册写时间，读完之后开始处理写事件
 			sk.interestOps(SelectionKey.OP_WRITE);
+			//释放
 			selector.wakeup();
 		}
 	}
